@@ -97,3 +97,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'UNAUTHENTICATED_USER': None,
+    'EXCEPTION_HANDLER': 'utils.exceptions.exception_handlers.custom_exception_handler',
+}
