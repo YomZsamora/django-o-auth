@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,8 +77,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv("MYSQL_ENGINE", "django.db.backends.sqlite3"),
+        'NAME': os.getenv("MYSQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        'USER': os.getenv("MYSQL_USER", "user"),
+        'PASSWORD': os.getenv("MYSQL_PASSWORD", "password"),
+        'HOST': os.getenv("MYSQL_HOST",  "localhost"),
+        'PORT': os.getenv("MYSQL_PORT", "3306")
     }
 }
 
