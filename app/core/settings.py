@@ -102,3 +102,11 @@ REST_FRAMEWORK = {
     'UNAUTHENTICATED_USER': None,
     'EXCEPTION_HANDLER': 'utils.exceptions.exception_handlers.custom_exception_handler',
 }
+
+# Google OAuth Settings
+GOOGLE_TOKEN_URL = os.getenv('GOOGLE_TOKEN_URL')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+GOOGLE_GRANT_TYPE = os.getenv('GOOGLE_GRANT_TYPE')
+GOOGLE_USER_INFO_URL = os.getenv('GOOGLE_USER_INFO_URL')
