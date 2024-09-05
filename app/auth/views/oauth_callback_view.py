@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.response import Response
 
-from utils.exceptions.custom_exceptions import DoesNotExist
-from utils.google import get_google_token_from_auth_code, verify_and_decode_id_token
+from utils.google import get_google_token_from_auth_code
+from rest_framework.exceptions import AuthenticationFailed
 
 class OAuth2CallbackView(generics.GenericAPIView):
     
@@ -22,7 +22,7 @@ class OAuth2CallbackView(generics.GenericAPIView):
         
         code = request.GET.get('code')
         if not code:
-            raise DoesNotExist("Authorization code not found")
+            raise AuthenticationFailed()
 
         token_info = get_google_token_from_auth_code(code)
         return Response(token_info)
