@@ -1,1 +1,1 @@
-from .google_callback_view import OAuth2CallbackView
+from .oauth_callback_view import OAuth2CallbackView
