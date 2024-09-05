@@ -2,6 +2,7 @@ import requests,cachecontrol
 from django.conf import settings
 from utils.exceptions.custom_exceptions import OAuthFailed
 from google.oauth2 import id_token
+import google.auth.transport.requests
 
 __session = requests.session()
 __cached_session = cachecontrol.CacheControl(__session)
