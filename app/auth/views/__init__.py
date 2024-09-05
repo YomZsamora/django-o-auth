@@ -1,1 +1,2 @@
 from .oauth_callback_view import OAuth2CallbackView
+from .oauth_login_view import OAuthLoginView
