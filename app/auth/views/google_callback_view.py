@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 
 from utils.exceptions.custom_exceptions import DoesNotExist
-from utils.google import get_google_token_from_auth_code, get_google_user_details,verify_and_decode_id_token
+from utils.google import get_google_token_from_auth_code, verify_and_decode_id_token
 
 class OAuth2CallbackView(generics.GenericAPIView):
     
