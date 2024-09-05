@@ -1,6 +1,7 @@
 import pytz
 from datetime import datetime
 from django.db import models
+from core.settings import TIME_ZONE
 from django.contrib.auth.hashers import make_password, check_password
 
 class User(models.Model):
@@ -29,7 +30,7 @@ class User(models.Model):
         return check_password(raw_password, self.password)
 
     def refresh_last_login(self):
-        self.last_login = datetime.now(tz=pytz.timezone('TIME_ZONE'))
+        self.last_login = datetime.now(tz=pytz.timezone(TIME_ZONE))
         self.save()
 
     def save(self, *args, **kwargs):
