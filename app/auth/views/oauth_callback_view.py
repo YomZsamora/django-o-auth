@@ -1,7 +1,7 @@
+from utils.google import get_google_token_from_auth_code
+
 from rest_framework import generics
 from rest_framework.response import Response
-
-from utils.google import get_google_token_from_auth_code
 from rest_framework.exceptions import AuthenticationFailed
 
 class OAuth2CallbackView(generics.GenericAPIView):
