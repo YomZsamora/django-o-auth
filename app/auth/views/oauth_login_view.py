@@ -15,6 +15,7 @@ class OAuthLoginView(APIView):
             raise AuthenticationFailed()
         
         token_info = verify_and_decode_id_token(id_token_str)
+        user_email = token_info.get('email')
         
         api_response = ApiResponse()
         api_response.message = "Logged in successfully."
