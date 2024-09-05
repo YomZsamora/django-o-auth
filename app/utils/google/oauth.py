@@ -3,6 +3,7 @@ from django.conf import settings
 from utils.exceptions.custom_exceptions import OAuthFailed
 from google.oauth2 import id_token
 import google.auth.transport.requests
+from rest_framework.exceptions import AuthenticationFailed
 
 __session = requests.session()
 __cached_session = cachecontrol.CacheControl(__session)
@@ -58,14 +59,15 @@ def verify_and_decode_id_token(id_token_str: str) -> dict:
     
     """
     Verifies and decodes the Google OAuth2 ID token to retrieve user information.
-    Args:
-    - id_token_str (str): The ID token received from Google's OAuth2 response.
+    Args: id_token_str (str): The ID token received from Google's OAuth2 response.
     Returns: dict: Decoded user information.
     """
     
     try:
         decoded_token = id_token.verify_oauth2_token(id_token_str, __request, settings.GOOGLE_CLIENT_ID)
-        return decoded_token
+        if decoded_token and 'email' in decoded_token and decoded_token.get('email_verified', False):
+            return decoded_token
+        raise AuthenticationFailed()
     except requests.exceptions.RequestException as e:
         print(f"RequestException: {e}")
     
