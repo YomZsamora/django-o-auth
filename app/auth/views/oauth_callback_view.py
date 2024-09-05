@@ -25,7 +25,5 @@ class OAuth2CallbackView(generics.GenericAPIView):
             raise DoesNotExist("Authorization code not found")
 
         token_info = get_google_token_from_auth_code(code)
-        id_token_str = token_info.get('id_token')
-        user_info = verify_and_decode_id_token(id_token_str)
-
-        return Response(user_info)
+        return Response(token_info)
+    
