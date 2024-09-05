@@ -50,19 +50,18 @@ def get_google_user_details(access_token: str) -> dict:
     except requests.exceptions.RequestException as e:
         print(f"RequestException: {e}")
         
-def verify_and_decode_id_token(id_token_str: str, client_id: str) -> dict:
+def verify_and_decode_id_token(id_token_str: str) -> dict:
     
     """
     Verifies and decodes the Google OAuth2 ID token to retrieve user information.
     Args:
     - id_token_str (str): The ID token received from Google's OAuth2 response.
-    - client_id (str): The client ID of your Google OAuth2 app.
     Returns: dict: Decoded user information.
     """
     
     try:
         request = requests.Request()
-        decoded_token = id_token.verify_oauth2_token(id_token_str, request, client_id)
+        decoded_token = id_token.verify_oauth2_token(id_token_str, request, settings.GOOGLE_CLIENT_ID)
         return decoded_token
     except requests.exceptions.RequestException as e:
         print(f"RequestException: {e}")
