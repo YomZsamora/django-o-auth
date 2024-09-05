@@ -1,6 +1,8 @@
 import requests
 from django.conf import settings
 from utils.exceptions.custom_exceptions import OAuthFailed
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 def get_google_token_from_auth_code(code: str) -> dict:
     
@@ -45,6 +47,23 @@ def get_google_user_details(access_token: str) -> dict:
         if 'email' in response and response['verified_email'] == True:
             return response
         raise OAuthFailed('An error occured while fetching user details.')
+    except requests.exceptions.RequestException as e:
+        print(f"RequestException: {e}")
+        
+def verify_and_decode_id_token(id_token_str: str, client_id: str) -> dict:
+    
+    """
+    Verifies and decodes the Google OAuth2 ID token to retrieve user information.
+    Args:
+    - id_token_str (str): The ID token received from Google's OAuth2 response.
+    - client_id (str): The client ID of your Google OAuth2 app.
+    Returns: dict: Decoded user information.
+    """
+    
+    try:
+        request = requests.Request()
+        decoded_token = id_token.verify_oauth2_token(id_token_str, request, client_id)
+        return decoded_token
     except requests.exceptions.RequestException as e:
         print(f"RequestException: {e}")
     
