@@ -6,5 +6,5 @@ def get_user_by_email(email: str) -> User:
     try:
         return User.objects.get(email=email)
     except (User.DoesNotExist):
-        raise DoesNotExist("The requested 'User' could not be found.")
+        raise DoesNotExist(f"{email} could not be found.")
     
