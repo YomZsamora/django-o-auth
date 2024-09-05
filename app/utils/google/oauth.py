@@ -1,8 +1,11 @@
-import requests
+import requests,cachecontrol
 from django.conf import settings
 from utils.exceptions.custom_exceptions import OAuthFailed
 from google.oauth2 import id_token
-from google.auth.transport import requests
+
+__session = requests.session()
+__cached_session = cachecontrol.CacheControl(__session)
+__request = google.auth.transport.requests.Request(session=__cached_session)
 
 def get_google_token_from_auth_code(code: str) -> dict:
     
@@ -60,8 +63,7 @@ def verify_and_decode_id_token(id_token_str: str) -> dict:
     """
     
     try:
-        request = requests.Request()
-        decoded_token = id_token.verify_oauth2_token(id_token_str, request, settings.GOOGLE_CLIENT_ID)
+        decoded_token = id_token.verify_oauth2_token(id_token_str, __request, settings.GOOGLE_CLIENT_ID)
         return decoded_token
     except requests.exceptions.RequestException as e:
         print(f"RequestException: {e}")
