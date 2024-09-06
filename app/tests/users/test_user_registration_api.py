@@ -21,7 +21,7 @@ class UserRegistrationAPITest(AbstractAPITest):
             "password": "@MyPassword!"
         }
         
-    def test_user_can_successfully_register_a_new_account(self):
+    def test_user_registration_successful(self):
         
         response = self.client.post(reverse("user-registeration"), json.dumps( self.payload), content_type="application/json")
         
@@ -37,7 +37,7 @@ class UserRegistrationAPITest(AbstractAPITest):
         assert response_data['first_name'] == registered_user.first_name
         assert response_data['last_name'] == registered_user.last_name
 
-    def test_exception_raised_on_required_fields(self):
+    def test_required_fields_exception_raised(self):
         
         self.payload = {}
         serializer = UserRegistrationSerializer(data=self.payload)
@@ -47,3 +47,14 @@ class UserRegistrationAPITest(AbstractAPITest):
         assert not is_valid
         assert errors['email'][0] == "This field is required."
         assert errors['password'][0] == "This field is required."
+        
+    def test_existing_or_registered_email_exception_raised(self):
+        
+        self.seed_registered_user()
+        self.payload['email'] = self.registered_user.email
+        
+        response = self.client.post(reverse("user-registeration"), json.dumps( self.payload), content_type="application/json")
+        
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "user with this email already exists." in response.data['email'][0]
+        
