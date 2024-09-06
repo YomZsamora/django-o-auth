@@ -32,6 +32,8 @@ class UserRegistrationAPITest(AbstractAPITest):
         response_data = response.data['data']
         registered_user = User.objects.get(email=response_data["email"])
         
+        assert str(registered_user) == self.user_email
+        
         assert response_data['id'] == registered_user.id      
         assert response_data['email'] == registered_user.email
         assert response_data['first_name'] == registered_user.first_name
