@@ -10,7 +10,18 @@ from rest_framework.exceptions import AuthenticationFailed
 
 class OAuthLoginView(APIView):
     
+    """
+    API view for handling OAuth login requests.
+    """
+    
     def post(self, request: Request) -> Response:
+        
+        """
+        Handle POST requests to authenticate users via OAuth.
+        Args: request (Request): HTTP request object containing user data.
+        Returns: Response: HTTP response object with authentication status.
+        Raises: AuthenticationFailed: If the ID token is missing or invalid.
+        """
         
         id_token_str = request.data['id_token']
         if not id_token_str:
@@ -26,7 +37,4 @@ class OAuthLoginView(APIView):
         api_response.data = token_info
         
         return Response(vars(api_response))
-        
-
-            
         
