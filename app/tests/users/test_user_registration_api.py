@@ -22,7 +22,7 @@ class UserRegistrationAPITest(AbstractAPITest):
     def test_user_can_successfully_register_a_new_account(self):
         
         response = self.client.post(reverse("user-registeration"), json.dumps( self.payload), content_type="application/json")
-        
+        print(response)
         assert response.status_code == status.HTTP_201_CREATED
         
         response_data = response.data
