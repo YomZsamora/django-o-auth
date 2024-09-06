@@ -32,6 +32,11 @@ class OAuthLoginView(APIView):
         user = get_user_by_email(user_email)
         user.refresh_last_login()
         
+        # Now that we've implemented the OAuth callback view (to handle the authorization code)
+        # that exchanges the authorization code for an access token and retrieves user information 
+        # using the ID token, this view verifies the id token and checks if user is registered in the 
+        # system using the retrieved information.
+        
         api_response = ApiResponse()
         api_response.message = "Logged in successfully."
         api_response.data = token_info
