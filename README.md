@@ -1,6 +1,6 @@
 # Simple OAuth Django App
 
-A quick and simple OAuth2 implementation for Django applications, designed to provide robust authentication and authorization mechanisms. This project integrates OAuth2 authentication using Django OAuth Toolkit.
+A quick and simple OAuth2 implementation for Django applications, designed to provide robust authentication and authorization mechanisms. 
 
 ## Description
 
