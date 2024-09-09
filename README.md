@@ -22,11 +22,54 @@ This is a basic Django application that utilizes OAuth authentication through th
 ## Technologies Used 
 
 - **Django:** High-level Python web framework for rapid development.
-- **Django OAuth Toolkit:** Django library for OAuth2 implementation.
+- **google-auth:** Google Authentication library.
 - **Django REST Framework (DRF):** Toolkit for building Web APIs.
 - **MySQL Connector/Python:** MySQL adapter for Python.
 - **Docker:** Containerization of the application.
+- **CacheControl:** Cache-control adapter for requests library.
+- **Faker:** Library for generating fake data.
 - **pytest:** Testing framework for unit and integration tests.
+
+## Obtaining Google Client ID and Client Secret
+
+1. **Go to the Google Cloud Console**.
+2. **Create a New Project**.
+3. **Enable the OAuth Consent Screen**: Set up required fields like `App name`, `Support email`, etc.
+4. **Create OAuth Credentials**:
+    - Choose `Web application`.
+    - Add redirect URI (`http://localhost:8022/v1/auth/oauth2callback`).
+5. Copy the **Client ID** and **Client Secret** for use in the next step.
+
+## Docker Compose Setup
+
+This project supports Docker containerization for easy deployment. To run the application using Docker Compose, follow these steps:
+
+1. Make sure you have Docker installed on your machine.
+2. Create a `.env` file in the root directory and add the necessary environment variables.
+    ```sh
+    # Database settings
+    - `MYSQL_ENGINE`: MySQL engine type (mysql.connector.django).
+    - `MYSQL_DATABASE`: Main database name for the application.
+    - `MYSQL_USER`: MySQL username for accessing the databases.
+    - `MYSQL_PASSWORD`: Password for the MySQL user.
+    - `MYSQL_ROOT_PASSWORD`: Root password for MySQL.
+    - `MYSQL_HOST`: Hostname where MySQL is running - the database container (o-auth-db).
+    - `MYSQL_PORT`: Port on which MySQL is listening (default is 3306).
+
+    # Google OAuth Settings
+    - `GOOGLE_TOKEN_URL`: URL to obtain an OAuth token from Google 'https://oauth2.googleapis.com/token'.
+    - `GOOGLE_CLIENT_ID`: Client ID for OAuth authentication.
+    - `GOOGLE_CLIENT_SECRET`: Client Secret for OAuth authentication.
+    - `GOOGLE_REDIRECT_URI`: Redirect URI for OAuth callbacks 'http://localhost:8022/v1/auth/oauth2callback'.
+    - `GOOGLE_GRANT_TYPE`: OAuth grant type, such as 'authorization_code'.
+    - `GOOGLE_USER_INFO_URL`: 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json'
+    ```
+3. Build and start the containers using Docker Compose:
+    ```sh
+    docker-compose up --build -d
+    ```
+4. The application should now be running inside a Docker container.
+5. Access the API at http://localhost:8022/ or use Postman for interactions.
 
 ## Setup Installations Requirements
 
