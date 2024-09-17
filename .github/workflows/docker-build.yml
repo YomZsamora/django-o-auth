@@ -22,28 +22,26 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
-
-      - name: Create .env file
-        run: |
-          echo "DEBUG=True" >> .env
-          echo "PORT=3001" >> .env
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker images
+      - name: Build o-auth Docker image
         run: |
-          docker-compose -f docker-compose.yml build
-          docker-compose -f docker-compose.yml push
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/o-auth:latest ./app
 
-      - name: Run Tests
+      - name: Build o-auth-db Docker image
         run: |
-          docker-compose -f docker-compose.yml run --rm app pytest
+          # Using the official MySQL image.
+          docker pull mysql:8.0.31
+          docker tag mysql:8.0.31 ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+
+      - name: Push o-auth Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
+
+      - name: Push o-auth-db Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
