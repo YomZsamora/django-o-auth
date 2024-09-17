@@ -1,0 +1,38 @@
+# Workflow name: Build and Push Docker Image
+# Description: This GitHub Actions workflow builds a Docker image from the code in the 'main' branch and pushes it to Docker Hub.
+
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t django-o-auth:latest ./app
+
+      - name: Push Docker image
+        run: |
+          docker tag django-o-auth:latest ${{ secrets.DOCKER_USERNAME }}/django-o-auth:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/django-o-auth:latest
