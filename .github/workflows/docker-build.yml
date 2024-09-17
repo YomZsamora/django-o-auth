@@ -28,11 +28,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker image
+      - name: Build and Push Docker images
         run: |
-          docker build -t django-o-auth:latest ./app
-
-      - name: Push Docker image
-        run: |
-          docker tag django-o-auth:latest ${{ secrets.DOCKER_USERNAME }}/django-o-auth:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/django-o-auth:latest
+          docker-compose build
+          docker-compose push
