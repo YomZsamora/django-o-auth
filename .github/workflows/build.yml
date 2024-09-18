@@ -81,10 +81,10 @@ jobs:
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
-      - name: Run migrations inside container
-        run: |
-          docker start o-auth
-          docker exec o-auth python manage.py migrate
+      # - name: Run migrations inside container
+      #   run: |
+      #     docker start o-auth
+      #     docker exec o-auth python manage.py migrate
 
       - name: Run tests inside container
         run: |
