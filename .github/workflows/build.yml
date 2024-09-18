@@ -56,34 +56,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Create Docker network
-        run: docker network create my-network
-
-      - name: Start MySQL Container
+      - name: Install Docker Compose
         run: |
-          docker run -d \
-            --name o-auth-db \
-            --network my-network \
-            -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
-            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
-            -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
-            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
-            -p 3306:3306 \
-            ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Start o-auth Service
+      - name: Start services with Docker Compose
         run: |
-          docker run -d \
-            --name o-auth \
-            --network my-network \
-            -e MYSQL_HOST=o-auth-db \
-            -e MYSQL_PORT=${{ secrets.MYSQL_PORT }} \
-            -p 8000:8000 \
-            ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
-
-      - name: Check Running Services
-        run: |
-          docker ps
+          docker-compose -f docker-compose.yml up -d
 
       - name: Run migrations inside container
         run: |
@@ -95,6 +75,4 @@ jobs:
 
       - name: Clean up containers
         run: |
-          docker stop o-auth o-auth-db
-          docker rm o-auth o-auth-db
-          docker network rm my-network
+          docker-compose -f docker-compose.yml down
