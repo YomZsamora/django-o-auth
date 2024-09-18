@@ -12,7 +12,9 @@ on:
       - main
 
 jobs:
+
   build:
+  
     runs-on: ubuntu-latest
 
     steps:
@@ -45,3 +47,53 @@ jobs:
       - name: Push o-auth-db Docker image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+
+  test:
+
+    runs-on: ubuntu-latest
+    needs: build  
+
+    services:
+
+      o-auth-db:
+        image: ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s
+
+      o-auth:
+        image: ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
+        ports:
+          - 8000:8000
+        env:
+          DEBUG: ${{ secrets.DEBUG }}
+          MYSQL_ENGINE: ${{ secrets.MYSQL_ENGINE }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          GOOGLE_TOKEN_URL: ${{ secrets.GOOGLE_TOKEN_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
+          GOOGLE_GRANT_TYPE: ${{ secrets.GOOGLE_GRANT_TYPE }}
+          GOOGLE_USER_INFO_URL: ${{ secrets.GOOGLE_USER_INFO_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run migrations inside container
+        run: |
+          docker-compose run o-auth python manage.py migrate
+
+      - name: Run tests inside container
+        run: |
+          docker-compose run o-auth pytest app/tests/
