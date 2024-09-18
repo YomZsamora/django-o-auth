@@ -14,7 +14,7 @@ on:
 jobs:
 
   build:
-  
+
     runs-on: ubuntu-latest
 
     steps:
@@ -49,12 +49,10 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
 
   test:
-
     runs-on: ubuntu-latest
     needs: build  
 
     services:
-
       o-auth-db:
         image: ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
         env:
