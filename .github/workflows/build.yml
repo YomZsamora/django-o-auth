@@ -74,15 +74,15 @@ jobs:
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
-      - name: Run migrations inside container
+      - name: Run Migrations inside Container
         run: |
-          docker-compose exec o-auth python manage.py migrate
+          docker exec o-auth python manage.py migrate
 
-      - name: Run tests inside container
+      - name: Run Tests inside Container
         run: |
-          docker-compose exec o-auth pytest app/tests/
+          docker exec o-auth pytest app/tests/
 
-      - name: Clean up containers
+      - name: Clean up Containers
         run: |
           docker stop o-auth o-auth-db
           docker rm o-auth o-auth-db
