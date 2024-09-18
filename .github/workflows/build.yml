@@ -83,10 +83,12 @@ jobs:
 
       - name: Run migrations inside container
         run: |
+          docker start o-auth
           docker exec o-auth python manage.py migrate
 
       - name: Run tests inside container
         run: |
+          docker start o-auth
           docker exec o-auth pytest app/tests/
 
       - name: Clean up containers
