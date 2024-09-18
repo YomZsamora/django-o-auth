@@ -61,38 +61,17 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Create Docker network
-        run: docker network create my-network
-
-      - name: Start MySQL Container
+      - name: Start services with Docker Compose
         run: |
-          docker run -d \
-            --name o-auth-db \
-            --network my-network \
-            -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
-            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
-            -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
-            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
-            -p 3306:3306 \
-            ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
-
-      - name: Start o-auth Service
-        run: |
-          docker run -d \
-            --name o-auth \
-            --network my-network \
-            -e MYSQL_HOST=o-auth-db \
-            -e MYSQL_PORT=${{ secrets.MYSQL_PORT }} \
-            -p 8000:8000 \
-            ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
+          docker-compose -f docker-compose.yml up -d
 
       - name: Run migrations inside container
         run: |
-          docker-compose exec o-auth python manage.py migrate
+          docker exec o-auth python manage.py migrate
 
       - name: Run tests inside container
         run: |
-          docker-compose exec o-auth pytest app/tests/
+          docker exec o-auth pytest app/tests/
 
       - name: Clean up containers
         run: |
