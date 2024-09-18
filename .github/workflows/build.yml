@@ -63,7 +63,7 @@ jobs:
 
       - name: Start services with Docker Compose
         run: |
-          docker-compose -f ./app/docker-compose.yml up -d
+          /usr/local/bin/docker-compose -f ./app/docker-compose.yml up -d
 
       - name: Run migrations inside container
         run: |
