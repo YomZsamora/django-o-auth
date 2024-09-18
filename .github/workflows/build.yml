@@ -1,6 +1,3 @@
-# Workflow name: Build and Push Docker Image
-# Description: This GitHub Actions workflow builds a Docker image from the code in the 'main' branch and pushes it to Docker Hub.
-
 name: Build, Test and Push Docker Image
 
 on:
@@ -12,11 +9,12 @@ on:
       - main
 
 jobs:
-
   build:
-  
     runs-on: ubuntu-latest
-
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,44 +25,34 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Set environment variables
-        run: |
-          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> $GITHUB_ENV
-          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> $GITHUB_ENV
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Build o-auth Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/o-auth:latest ./app
+          docker build -t ${{ env.DOCKER_USERNAME }}/o-auth:latest ./app
 
       - name: Build o-auth-db Docker image
         run: |
-          # Using the official MySQL image.
           docker pull mysql:8.0.31
-          docker tag mysql:8.0.31 ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+          docker tag mysql:8.0.31 ${{ env.DOCKER_USERNAME }}/o-auth-db:latest
 
       - name: Push o-auth Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
+          docker push ${{ env.DOCKER_USERNAME }}/o-auth:latest
 
       - name: Push o-auth-db Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
-
-      - name: Print secret
-        run: echo $DOCKER_USERNAME
+          docker push ${{ env.DOCKER_USERNAME }}/o-auth-db:latest
 
   test:
-
     runs-on: ubuntu-latest
     needs: build  
 
     services:
 
       o-auth-db:
-        image: $DOCKER_USERNAME/o-auth-db:latest
+        image: ${{ env.DOCKER_USERNAME }}/o-auth-db:latest
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
@@ -75,7 +63,7 @@ jobs:
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s
 
       o-auth:
-        image: $DOCKER_USERNAME/o-auth:latest
+        image: ${{ env.DOCKER_USERNAME }}/o-auth:latest
         ports:
           - 8000:8000
         env:
