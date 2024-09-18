@@ -61,7 +61,7 @@ jobs:
     services:
 
       o-auth-db:
-        image: ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+        image: $DOCKER_USERNAME/o-auth-db:latest
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
@@ -72,7 +72,7 @@ jobs:
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s
 
       o-auth:
-        image: ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
+        image: $DOCKER_USERNAME/o-auth:latest
         ports:
           - 8000:8000
         env:
