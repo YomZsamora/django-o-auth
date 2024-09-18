@@ -56,28 +56,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+      - name: Create Docker network
+        run: docker network create my-network
 
-      - name: Start services with Docker Compose
+      - name: Start MySQL Container
         run: |
-          echo "DEBUG=${{ secrets.DEBUG }}" > .env
-          echo "MYSQL_ENGINE=${{ secrets.MYSQL_ENGINE }}" >> .env
-          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
-          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
-          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-          echo "MYSQL_HOST=o-auth-db" >> .env
-          echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-          echo "GOOGLE_TOKEN_URL=${{ secrets.GOOGLE_TOKEN_URL }}" >> .env
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-          echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> .env
-          echo "GOOGLE_GRANT_TYPE=${{ secrets.GOOGLE_GRANT_TYPE }}" >> .env
-          echo "GOOGLE_USER_INFO_URL=${{ secrets.GOOGLE_USER_INFO_URL }}" >> .env
-          docker-compose --env-file .env -f docker-compose.yml up -d
+          docker run -d \
+            --name o-auth-db \
+            --network my-network \
+            -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
+            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
+            -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
+            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
+            -p 3306:3306 \
+            ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+
+      - name: Start o-auth Service
+        run: |
+          docker run -d \
+            --name o-auth \
+            --network my-network \
+            -e MYSQL_HOST=o-auth-db \
+            -e MYSQL_PORT=${{ secrets.MYSQL_PORT }} \
+            -p 8000:8000 \
+            ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
       - name: Run migrations inside container
         run: |
@@ -89,4 +91,4 @@ jobs:
 
       - name: Clean up containers
         run: |
-          docker-compose -f docker-compose.yml down
+          docker-compose -f docker-compose.test.yml down
