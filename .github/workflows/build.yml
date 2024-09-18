@@ -56,7 +56,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Create Docker network
+      - name: Create Docker Network
         run: docker network create my-network
 
       - name: Start MySQL Container
@@ -78,6 +78,7 @@ jobs:
             --network my-network \
             -e MYSQL_HOST=o-auth-db \
             -e MYSQL_PORT=${{ secrets.MYSQL_PORT }} \
+            -e ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} \
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest python3 manage.py runserver 0.0.0.0:8000
 
@@ -89,6 +90,7 @@ jobs:
         run: |
           docker exec o-auth pytest tests/
 
-      - name: Clean up containers
+      - name: Clean up Containers
         run: |
-          docker-compose -f docker-compose.test.yml down
+          docker stop o-auth o-auth-db
+          docker rm o-auth o-auth-db
