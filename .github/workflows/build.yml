@@ -74,11 +74,20 @@ jobs:
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
-      - name: Run Tests inside Container
+      - name: Install Docker Compose
         run: |
-          docker exec o-auth pytest app/tests/
+          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+      
+      - name: Run migrations inside container
+        run: |
+          docker-compose exec o-auth python manage.py migrate
 
-      - name: Clean up Containers
+      - name: Run tests inside container
+        run: |
+          docker-compose exec o-auth pytest app/tests/
+
+      - name: Clean up containers
         run: |
           docker stop o-auth o-auth-db
           docker rm o-auth o-auth-db
