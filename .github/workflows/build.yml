@@ -54,7 +54,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
 
       - name: Print secret
-        run: echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}"
+        run: echo $DOCKER_USERNAME
 
   test:
 
