@@ -81,6 +81,9 @@ jobs:
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
+      - name: Check Running Services
+        run: |
+          docker ps
 
       - name: Run migrations inside container
         run: |
@@ -94,3 +97,4 @@ jobs:
         run: |
           docker stop o-auth o-auth-db
           docker rm o-auth o-auth-db
+          docker network rm my-network
