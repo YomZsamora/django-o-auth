@@ -75,6 +75,7 @@ jobs:
         run: |
           docker run -d \
             --name o-auth \
+            --network my-network \
             -e DEBUG=${{ secrets.DEBUG }} \
             -e MYSQL_ENGINE=${{ secrets.MYSQL_ENGINE }} \
             -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
