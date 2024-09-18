@@ -74,10 +74,6 @@ jobs:
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
-      - name: Run Migrations inside Container
-        run: |
-          docker exec o-auth python manage.py migrate
-
       - name: Run Tests inside Container
         run: |
           docker exec o-auth pytest app/tests/
