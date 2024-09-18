@@ -9,7 +9,9 @@ on:
       - main
 
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -45,51 +47,56 @@ jobs:
         run: |
           docker push ${{ env.DOCKER_USERNAME }}/o-auth-db:latest
 
-  # test:
-  #   runs-on: ubuntu-latest
-  #   needs: build  
+  test:
 
-  #   services:
+    runs-on: ubuntu-latest
+    needs: build  
 
-  #     o-auth-db:
-  #       image: ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
-  #       env:
-  #         MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-  #         MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-  #         MYSQL_USER: ${{ secrets.MYSQL_USER }}
-  #         MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-  #       ports:
-  #         - 3306:3306
-  #       options: --health-cmd="mysqladmin ping --silent" --health-interval=10s
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     o-auth:
-  #       image: ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
-  #       ports:
-  #         - 8000:8000
-  #       env:
-  #         DEBUG: ${{ secrets.DEBUG }}
-  #         MYSQL_ENGINE: ${{ secrets.MYSQL_ENGINE }}
-  #         MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-  #         MYSQL_USER: ${{ secrets.MYSQL_USER }}
-  #         MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-  #         MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
-  #         MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
-  #         JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-  #         GOOGLE_TOKEN_URL: ${{ secrets.GOOGLE_TOKEN_URL }}
-  #         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-  #         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-  #         GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
-  #         GOOGLE_GRANT_TYPE: ${{ secrets.GOOGLE_GRANT_TYPE }}
-  #         GOOGLE_USER_INFO_URL: ${{ secrets.GOOGLE_USER_INFO_URL }}
+      - name: Start MySQL container
+        run: |
+          docker run -d \
+            --name o-auth-db \
+            -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
+            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
+            -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
+            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
+            -p 3306:3306 \
+            ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+      - name: Start o-auth service
+        run: |
+          docker run -d \
+            --name o-auth \
+            -e DEBUG=${{ secrets.DEBUG }} \
+            -e MYSQL_ENGINE=${{ secrets.MYSQL_ENGINE }} \
+            -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
+            -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
+            -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
+            -e MYSQL_HOST=o-auth-db \
+            -e MYSQL_PORT=${{ secrets.MYSQL_PORT }} \
+            -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+            -e GOOGLE_TOKEN_URL=${{ secrets.GOOGLE_TOKEN_URL }} \
+            -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+            -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+            -e GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }} \
+            -e GOOGLE_GRANT_TYPE=${{ secrets.GOOGLE_GRANT_TYPE }} \
+            -e GOOGLE_USER_INFO_URL=${{ secrets.GOOGLE_USER_INFO_URL }} \
+            -p 8000:8000 \
+            ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
-  #     - name: Run migrations inside container
-  #       run: |
-  #         docker-compose run o-auth python manage.py migrate
+      - name: Run migrations inside container
+        run: |
+          docker-compose exec o-auth python manage.py migrate
 
-  #     - name: Run tests inside container
-  #       run: |
-  #         docker-compose run o-auth pytest app/tests/
+      - name: Run tests inside container
+        run: |
+          docker-compose exec o-auth pytest app/tests/
+
+      - name: Clean up containers
+        run: |
+          docker stop o-auth o-auth-db
+          docker rm o-auth o-auth-db
