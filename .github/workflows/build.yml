@@ -1,7 +1,7 @@
 # Workflow name: Build and Push Docker Image
 # Description: This GitHub Actions workflow builds a Docker image from the code in the 'main' branch and pushes it to Docker Hub.
 
-name: Build and Push Docker Image
+name: Build, Test and Push Docker Image
 
 on:
   push:
@@ -61,7 +61,7 @@ jobs:
     services:
 
       o-auth-db:
-        image: ${{ env.DOCKER_USERNAME }}/o-auth-db:latest
+        image: $DOCKER_USERNAME/o-auth-db:latest
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
@@ -72,7 +72,7 @@ jobs:
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s
 
       o-auth:
-        image: ${{ env.DOCKER_USERNAME }}/o-auth:latest
+        image: $DOCKER_USERNAME/o-auth:latest
         ports:
           - 8000:8000
         env:
