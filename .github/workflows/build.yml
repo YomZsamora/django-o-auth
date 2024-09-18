@@ -69,6 +69,7 @@ jobs:
 
       - name: Start o-auth Service
         run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
           docker run -d \
             --name o-auth \
             -e DEBUG=${{ secrets.DEBUG }} \
