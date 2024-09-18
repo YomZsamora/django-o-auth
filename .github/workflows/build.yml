@@ -79,7 +79,7 @@ jobs:
             -e MYSQL_HOST=o-auth-db \
             -e MYSQL_PORT=${{ secrets.MYSQL_PORT }} \
             -p 8000:8000 \
-            ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
+            ${{ secrets.DOCKER_USERNAME }}/o-auth:latest python3 manage.py runserver 0.0.0.0:8000
 
       # - name: Run migrations inside container
       #   run: |
