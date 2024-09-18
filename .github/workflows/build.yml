@@ -81,19 +81,13 @@ jobs:
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest python3 manage.py runserver 0.0.0.0:8000
 
-      # - name: Run migrations inside container
-      #   run: |
-      #     docker start o-auth
-      #     docker exec o-auth python manage.py migrate
-
-      - name: Verify Containers Running
+      - name: Run Migrations Inside Container
         run: |
-          docker ps
-          docker logs o-auth
+          docker exec o-auth python manage.py migrate
 
-      - name: Run tests inside container
+      - name: Run Tests Inside Container
         run: |
-          docker exec o-auth pytest app/tests/
+          docker exec o-auth pytest tests/
 
       - name: Clean up containers
         run: |
