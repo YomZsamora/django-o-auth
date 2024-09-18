@@ -29,6 +29,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Set environment variables
+        run: |
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> $GITHUB_ENV
+          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Build o-auth Docker image
         run: |
@@ -56,7 +61,7 @@ jobs:
     services:
 
       o-auth-db:
-        image: ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
+        image: ${{ env.DOCKER_USERNAME }}/o-auth-db:latest
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
@@ -67,7 +72,7 @@ jobs:
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s
 
       o-auth:
-        image: ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
+        image: ${{ env.DOCKER_USERNAME }}/o-auth:latest
         ports:
           - 8000:8000
         env:
