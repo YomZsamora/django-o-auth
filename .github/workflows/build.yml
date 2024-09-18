@@ -56,10 +56,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Create Docker network
+        run: docker network create my-network
+
       - name: Start MySQL Container
         run: |
           docker run -d \
             --name o-auth-db \
+            --network my-network \
             -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
             -e MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }} \
             -e MYSQL_USER=${{ secrets.MYSQL_USER }} \
@@ -71,21 +75,20 @@ jobs:
         run: |
           docker run -d \
             --name o-auth \
+            --network my-network \
+            -e MYSQL_HOST=o-auth-db \
+            -e MYSQL_PORT=${{ secrets.MYSQL_PORT }} \
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth:latest
 
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-      
+
       - name: Run migrations inside container
         run: |
-          docker-compose exec o-auth python manage.py migrate
+          docker exec o-auth python manage.py migrate
 
       - name: Run tests inside container
         run: |
-          docker-compose exec o-auth pytest app/tests/
+          docker exec o-auth pytest app/tests/
 
       - name: Clean up containers
         run: |
