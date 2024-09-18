@@ -56,7 +56,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Start MySQL container
+      - name: Start MySQL Container
         run: |
           docker run -d \
             --name o-auth-db \
@@ -67,7 +67,7 @@ jobs:
             -p 3306:3306 \
             ${{ secrets.DOCKER_USERNAME }}/o-auth-db:latest
 
-      - name: Start o-auth service
+      - name: Start o-auth Service
         run: |
           docker run -d \
             --name o-auth \
